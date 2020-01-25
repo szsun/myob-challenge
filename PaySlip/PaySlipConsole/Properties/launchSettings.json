@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PaySlipConsole": {
+      "commandName": "Project",
+      "commandLineArgs": "\"Lei\" 60000"
+    }
+  }
+}
