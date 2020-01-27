@@ -7,12 +7,12 @@ using System;
 namespace PaySlipConsole
 {
     /**
-     * this console application gives the details of a payslip given employee's anual salary.
-     * the payslip is monthly while it can be exteneded to support other period like weekly, fornightly and yearly.
-     * the tax calculation can also be extended to support other varies based on differernt locations and/or financial years.
+     * This console application gives the details of a payslip based on employee's anual salary.
+     * The payslip is by monthly while it can be exteneded to support other period like weekly, fornightly and yearly.
+     * The tax calculation can also be extended to support various ones based on differernt locations and/or financial years.
      * 
-     * console input:  employee name in string format and anual salary in positive numeric format
-     * console output: employee name, gross income, income tax and net income on individual lines.
+     * Console input:  employee name in string format, and anual salary in positive numeric format.
+     * Console output: employee name, gross income, income tax and net income on individual lines.
      * 
      * Assumptions:
      * 1. The app runs for one employee every time.
@@ -20,14 +20,23 @@ namespace PaySlipConsole
      * 3. The GrossIncome and IncomeTax are calculated and rounded to two fractional digits.
      * 4. The tax rates is assumed to be from Australia and for FY19.
      * 
+     * A few OO design principles and patterns are used: 
+     * Encapsulation, Inheritance, Polymophism, Composition, Programing to the interface, Factory pattern, Singleton pattern.
+     * 
+     * Logging framework Serilog is demoed in the main program.
+     * 
+     * The unit tests are prvoided in the test project that is based on xUnit and Moq.
+     * 
+     * @Author : Lei Sun
+     * @Date: 2020-01-26
      */
     class Program
     {
         static void Main(string[] args)
-        {            
-            var logger = initLogger();
+        {
+            var logger = InitLogger();
             logger.LogInformation("Application Started at {dateTime}", DateTime.UtcNow);
-            if (!validArgs(args, logger))
+            if (!IsValidArgs(args, logger))
             {
                 logger.LogInformation("Application Ended at {dateTime}", DateTime.UtcNow);
                 return;
@@ -35,33 +44,26 @@ namespace PaySlipConsole
             string empName = args[0];
             double anualSalary = Double.Parse(args[1]);
 
-            IEmployee emp = getEmployee(empName, anualSalary);
+            IEmployee emp = GetEmployee(empName, anualSalary);
             // The payslip factory creates the payslip based on the employee's PaySlipPeriodType attribute.
-            IPaySlip payslip = PaySlipFactory.generatePaySlip(emp);
+            IPaySlip payslip = PaySlipFactory.CreatePaySlip(emp);
+            payslip.Init();
             // each specific implementation of IPaySlip prints the details in particular format.
             payslip.PrintDetails();
 
-            /*            emp.PaySlipPeriodType = PaySlipPeriodType.FORNIGHTLY;
-                        payslip = PaySlipFactory.generatePaySlip(emp);
-                        payslip.PrintDetails();*/
+/*            emp.PaySlipPeriodType = PaySlipPeriodType.FORNIGHTLY;
+            payslip = PaySlipFactory.CreatePaySlip(emp);
+            payslip.Init();
+            payslip.PrintDetails();*/
             logger.LogInformation("Application Ended at {dateTime}", DateTime.UtcNow);
         }
 
-        private static Microsoft.Extensions.Logging.ILogger<Program> initLogger()
-        {
-            Log.Logger = new LoggerConfiguration().WriteTo.File("consoleapp.log")
-          .CreateLogger();
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var logger = serviceProvider.GetService<ILogger<Program>>();
-            return logger;            
-        }
+
 
         // the creation of employee can be extended to a service to support different type, eg, contract, parttime, etc.
-        private static IEmployee getEmployee(string empName, double anualSalary)
+        private static IEmployee GetEmployee(string empName, double anualSalary)
         {
-            
+
             IEmployee emp = new PermanentEmployee(empName, anualSalary);
             // set the employee's payslip period to be monthly.
             emp.PaySlipPeriodType = PaySlipPeriodType.MONTHLY;
@@ -74,10 +76,10 @@ namespace PaySlipConsole
         }
 
         /**
-* validate the input args to enforce the two args are provied as being expected.
-* give the warning for more arguements provided.
-*/
-        static bool validArgs(string[] args, Microsoft.Extensions.Logging.ILogger<Program> logger)
+        * validate the input args to enforce the two args are provied as being expected.
+        * give the warning for more arguements provided.
+        */
+        static bool IsValidArgs(string[] args, Microsoft.Extensions.Logging.ILogger<Program> logger)
         {
             if (args.Length < 2)
             {
@@ -85,11 +87,12 @@ namespace PaySlipConsole
                 System.Console.WriteLine("Please enter employee name and anual salary.");
                 Console.WriteLine("Usage: PaySlipConsole <string> <num>");
                 return false;
-            }            
+            }
             try
             {
                 double salary = Double.Parse(args[1]);
-                if (salary < 0) {
+                if (salary < 0)
+                {
                     logger.LogError("Minus number for Salary.");
                     System.Console.WriteLine("Please enter a positive numeric for anual salary.");
                     return false;
@@ -109,6 +112,18 @@ namespace PaySlipConsole
             return true;
         }
 
+        // logging to file
+        private static Microsoft.Extensions.Logging.ILogger<Program> InitLogger()
+        {
+            Log.Logger = new LoggerConfiguration().WriteTo.File("consoleapp.log")
+          .CreateLogger();
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var logger = serviceProvider.GetService<ILogger<Program>>();
+            return logger;
+        }
+        // Serilog
         private static void ConfigureServices(IServiceCollection services)
         {
             //we will configure logging here

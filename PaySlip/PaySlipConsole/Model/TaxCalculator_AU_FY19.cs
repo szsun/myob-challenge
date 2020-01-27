@@ -4,6 +4,12 @@ using System.Text;
 
 namespace PaySlipConsole.Model
 {
+    /** 
+     * A simple implemention by utilizing the array data structure.
+     * the tax ties are ascending ordered in the array.
+     * and are iterated through until the matched tie is reached.
+     * Sum the tax from each tie.
+     */
     public class TaxCalculator_AU_FY19 : ITaxCalculator
     {
         static TaxRateTie TIE1 = new TaxRateTie(0, 20000, 0);

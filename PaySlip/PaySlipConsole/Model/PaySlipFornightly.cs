@@ -4,38 +4,21 @@ using System.Text;
 
 namespace PaySlipConsole.Model
 {
-    public class PaySlipFornightly : IPaySlip
+    public class PaySlipFornightly : PaySlipBase
     {
-        private IEmployee _employee;
-
-        public PaySlipFornightly(IEmployee employee)
+        public override int PeriodNumber { get => 26; }
+        public string PeriodName { get => "Fornightly"; }
+        public PaySlipFornightly(IEmployee employee): base(employee)
         {
-            _employee = employee;
-            GrossIncome = Math.Round(_employee.AnualSalary / 26,2);
-            if (_employee.TaxCalculator != null)
-            {
-                IncomeTax = Math.Round(_employee.TaxCalculator.CalculateIncomeTax(_employee) / 26,2);
-            }
-            else
-            {
-                throw new Exception("Tax Calculator is missing for employee {employee.DisplayName}");
-            }
         }
 
-
-        public string Name { get => _employee.DisplayName; }
-        public double GrossIncome { get; set; }
-
-        public double IncomeTax { get; set; }
-
-        public double NetIncome { get => GrossIncome - IncomeTax; }
-
-        public void PrintDetails()
+        public override string GetDetails()
         {
-            Console.WriteLine($"Fornightly Payslip for: \"{Name}\"\n" +
-                $"Gross Fornightly Income: ${GrossIncome}\n" +
-                $"Fornightly Income Tax: ${IncomeTax}\n" +
-                $"Net Fornightly Income: ${NetIncome}\n");
+            return ($"{PeriodName} Payslip for: \"{Name}\"\n" +
+                $"Gross {PeriodName} Income: ${GrossIncome}\n" +
+                $"{PeriodName} Income Tax: ${IncomeTax}\n" +
+                $"Net {PeriodName} Income: ${NetIncome}\n");
         }
+
     }
 }
