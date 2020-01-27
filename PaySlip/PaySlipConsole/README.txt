@@ -11,7 +11,7 @@
      * 3. The GrossIncome and IncomeTax are calculated and rounded to two fractional digits.
      * 4. The tax rates is assumed to be from Australia and for FY19.
 
-     To Run the app from the exe file:abcd
+     To Run the app from the exe file:
      1. open a console 
      2. switch to the attached PaySlip\publish folder that you've copied to your local.
      3. type command by the app's exe file name 'PaySlipConsole' and two arguments. eg: PaySlipConsole "Mary Song" 60000
